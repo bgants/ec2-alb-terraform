@@ -9,8 +9,8 @@ resource "aws_security_group" "instance" {
     from_port   = var.server_port
     to_port     = var.server_port
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    #security_groups = [aws_security_group.alb.id]
+    #cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.alb.id]
   }
 }
 
@@ -113,17 +113,18 @@ resource "aws_lb_target_group" "asg" {
   }
 }
 
-resource "aws_listener_rule" "asg" {
+resource "aws_lb_listener_rule" "asg" {
   listener_arn = aws_lb_listener.http.arn
-  priority     = 100
-
-  condition {
-    field  = "path-pattern"
-    values = ["*"]
-  }
+  priority     = 1
 
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.asg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
   }
 }
